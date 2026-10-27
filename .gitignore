@@ -1,0 +1,22 @@
+﻿# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Secrets (never commit these)
+.env
+*.pem
+*token*
+*secret*
+
+# Databricks exports you don't want in the repo
+*.dbc

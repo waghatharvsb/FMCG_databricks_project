@@ -1,0 +1,57 @@
+﻿resources:
+  jobs:
+    FMCG_Incremental_update:
+      name: FMCG Incremental update
+      email_notifications:
+        on_success:
+          - atharvwagh
+        on_failure:
+          - atharvwagh
+        no_alert_for_skipped_runs: true
+      notification_settings:
+        no_alert_for_skipped_runs: true
+        no_alert_for_canceled_runs: true
+      schedule:
+        quartz_cron_expression: 42 0 23 * * ?
+        timezone_id: Asia/Calcutta
+        pause_status: PAUSED
+      tasks:
+        - task_key: dim_processing_customers
+          notebook_task:
+            notebook_path: /Workspace/Users/atharvwagh/consolidated_pipeline/2_dimension_data_processing/1_customer_data_preprocessing
+            base_parameters:
+              catalog: fmcg
+              data_source: customers
+            source: WORKSPACE
+        - task_key: dim_processing_products
+          depends_on:
+            - task_key: dim_processing_customers
+          notebook_task:
+            notebook_path: /Workspace/Users/atharvwagh/consolidated_pipeline/2_dimension_data_processing/2_products_data_preprocessing
+            base_parameters:
+              catalog: fmcg
+              data_source: products
+            source: WORKSPACE
+        - task_key: dim_processing_pricing
+          depends_on:
+            - task_key: dim_processing_products
+          notebook_task:
+            notebook_path: /Workspace/Users/atharvwagh/consolidated_pipeline/2_dimension_data_processing/3_pricing_data_processing
+            base_parameters:
+              catalog: fmcg
+              data_source: gross_price
+            source: WORKSPACE
+        - task_key: fact_processing_orders
+          depends_on:
+            - task_key: dim_processing_pricing
+          notebook_task:
+            notebook_path: /Workspace/Users/atharvwagh/consolidated_pipeline/3_fact_data_preprocessing/2_incremental_load_fact
+            base_parameters:
+              catalog: fmcg
+              data_source: orders
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
+
+
